@@ -1,0 +1,802 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    /* Dark fantasy palette — deep void blacks, gold, crimson */
+    --background: 0.08 0.02 285;
+    --foreground: 0.95 0.02 80;
+    --card: 0.12 0.03 285;
+    --card-foreground: 0.95 0.02 80;
+    --popover: 0.1 0.04 285;
+    --popover-foreground: 0.95 0.02 80;
+    --primary: 0.78 0.18 75;
+    --primary-foreground: 0.08 0.02 285;
+    --secondary: 0.18 0.05 285;
+    --secondary-foreground: 0.95 0.02 80;
+    --muted: 0.15 0.03 285;
+    --muted-foreground: 0.55 0.05 285;
+    --accent: 0.55 0.22 15;
+    --accent-foreground: 0.95 0.02 80;
+    --destructive: 0.55 0.22 15;
+    --destructive-foreground: 0.985 0 0;
+    --border: 0.22 0.06 285;
+    --input: 0.18 0.04 285;
+    --ring: 0.78 0.18 75;
+    --chart-1: 0.78 0.18 75;
+    --chart-2: 0.55 0.22 15;
+    --chart-3: 0.6 0.2 270;
+    --chart-4: 0.7 0.15 200;
+    --chart-5: 0.65 0.18 140;
+    --sidebar: 0.1 0.03 285;
+    --sidebar-foreground: 0.95 0.02 80;
+    --sidebar-primary: 0.78 0.18 75;
+    --sidebar-primary-foreground: 0.08 0.02 285;
+    --sidebar-accent: 0.18 0.05 285;
+    --sidebar-accent-foreground: 0.95 0.02 80;
+    --sidebar-border: 0.22 0.06 285;
+    --sidebar-ring: 0.78 0.18 75;
+
+    /* Game-specific tokens */
+    --gold: oklch(0.78 0.18 75);
+    --gold-bright: oklch(0.88 0.22 80);
+    --gold-dim: oklch(0.55 0.12 70);
+    --crimson: oklch(0.45 0.22 15);
+    --crimson-bright: oklch(0.6 0.25 20);
+    --void-black: oklch(0.06 0.015 285);
+    --void-purple: oklch(0.18 0.08 285);
+    --void-deep: oklch(0.12 0.06 285);
+    --electric-blue: oklch(0.7 0.2 230);
+    --neon-teal: oklch(0.72 0.18 185);
+    --shadow-dark: oklch(0.08 0.03 285);
+  }
+
+  * {
+    border-color: oklch(var(--border));
+    box-sizing: border-box;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: oklch(var(--background));
+    color: oklch(var(--foreground));
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Cinzel', serif;
+  }
+
+  .font-display {
+    font-family: 'Cinzel Decorative', serif;
+  }
+
+  .font-ui {
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .font-body {
+    font-family: 'Rajdhani', sans-serif;
+  }
+}
+
+/* ===== HOLOGRAPHIC RARITY SYSTEM — 210 TIERS ===== */
+
+/* Base card shine layer */
+.holo-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+  mix-blend-mode: screen;
+}
+
+/* Common tier (0-9): no effect */
+.rarity-common { }
+
+/* Rare (10-19): subtle blue shimmer */
+@keyframes rarity-rare-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.rarity-rare::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 30%, rgba(100,149,237,0.25) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: rarity-rare-shimmer 3s linear infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+
+/* Super Rare (20-39): rainbow diagonal shimmer */
+@keyframes rarity-super-shimmer {
+  0% { background-position: -200% -200%; }
+  100% { background-position: 200% 200%; }
+}
+.rarity-super::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, 
+    transparent 20%, 
+    rgba(255,0,0,0.15) 25%,
+    rgba(255,165,0,0.15) 30%,
+    rgba(255,255,0,0.15) 35%,
+    rgba(0,255,0,0.15) 40%,
+    rgba(0,100,255,0.15) 45%,
+    rgba(148,0,211,0.15) 50%,
+    transparent 55%
+  );
+  background-size: 300% 300%;
+  animation: rarity-super-shimmer 4s linear infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+
+/* Ultra Rare (40-59): gold sparkle + border glow */
+@keyframes rarity-ultra-glow {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(255,215,0,0.4), inset 0 0 8px rgba(255,215,0,0.1); }
+  50% { box-shadow: 0 0 20px 6px rgba(255,215,0,0.7), inset 0 0 15px rgba(255,215,0,0.2); }
+}
+@keyframes rarity-ultra-shimmer {
+  0% { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+.rarity-ultra {
+  animation: rarity-ultra-glow 2.5s ease-in-out infinite;
+}
+.rarity-ultra::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, 
+    transparent 20%, 
+    rgba(255,215,0,0.3) 40%, 
+    rgba(255,255,200,0.5) 50%, 
+    rgba(255,215,0,0.3) 60%, 
+    transparent 80%
+  );
+  background-size: 300% 100%;
+  animation: rarity-ultra-shimmer 2.5s linear infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+
+/* Secret Rare (60-79): prismatic diagonal rainbow sweep */
+@keyframes rarity-secret-sweep {
+  0% { transform: translateX(-150%) rotate(45deg); }
+  100% { transform: translateX(250%) rotate(45deg); }
+}
+.rarity-secret {
+  box-shadow: 0 0 15px rgba(255,0,200,0.4), 0 0 30px rgba(0,100,255,0.3);
+}
+.rarity-secret::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(255,0,100,0.3),
+    rgba(255,100,0,0.3),
+    rgba(255,255,0,0.3),
+    rgba(0,255,100,0.3),
+    rgba(0,100,255,0.3),
+    rgba(200,0,255,0.3),
+    transparent
+  );
+  animation: rarity-secret-sweep 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+
+/* Prismatic Secret (80-99): full prismatic rainbow flood */
+@keyframes rarity-prismatic {
+  0% { filter: hue-rotate(0deg) brightness(1.3); }
+  100% { filter: hue-rotate(360deg) brightness(1.3); }
+}
+.rarity-prismatic {
+  box-shadow: 0 0 20px rgba(255,100,255,0.5), 0 0 40px rgba(100,100,255,0.4);
+}
+.rarity-prismatic::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(255,0,0,0.2) 0%,
+    rgba(255,165,0,0.2) 15%,
+    rgba(255,255,0,0.2) 30%,
+    rgba(0,255,0,0.2) 45%,
+    rgba(0,100,255,0.2) 60%,
+    rgba(75,0,130,0.2) 75%,
+    rgba(238,130,238,0.2) 90%,
+    rgba(255,0,0,0.2) 100%
+  );
+  animation: rarity-prismatic 2s linear infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Ghost Rare (100-119): pale white translucent shimmer */
+@keyframes rarity-ghost-shimmer {
+  0%, 100% { opacity: 0.3; transform: translateX(-100%); }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.3; transform: translateX(100%); }
+}
+@keyframes rarity-ghost-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.rarity-ghost {
+  box-shadow: 0 0 25px rgba(255,255,255,0.5), 0 0 50px rgba(200,200,255,0.3);
+  animation: rarity-ghost-pulse 3s ease-in-out infinite;
+}
+.rarity-ghost::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.6) 50%, transparent 70%);
+  animation: rarity-ghost-shimmer 2.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: overlay;
+}
+
+/* Starlight Rare (120-139): scattered starburst flashes */
+@keyframes rarity-star1 { 0%,90%,100%{opacity:0} 5%{opacity:1} }
+@keyframes rarity-star2 { 0%,20%,100%{opacity:0} 25%{opacity:1} }
+@keyframes rarity-star3 { 0%,50%,100%{opacity:0} 55%{opacity:1} }
+@keyframes rarity-star4 { 0%,70%,100%{opacity:0} 75%{opacity:1} }
+@keyframes rarity-starlight-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.4), 0 0 40px rgba(200,200,100,0.3); }
+  50% { box-shadow: 0 0 40px rgba(255,255,255,0.7), 0 0 80px rgba(200,200,100,0.5), 0 0 120px rgba(255,215,0,0.3); }
+}
+.rarity-starlight {
+  animation: rarity-starlight-glow 2s ease-in-out infinite;
+}
+.rarity-starlight::after {
+  content: '✦ ✧ ✦ ✧ ✦';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 14px;
+  color: rgba(255,255,255,0.9);
+  animation: rarity-star1 1.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+  text-shadow: 0 0 8px white, 0 0 20px #ffd700;
+}
+
+/* Collector's Rare (140-159): crinkle rainbow texture */
+@keyframes rarity-collectors {
+  0% { background-position: 0% 0%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 0%; }
+}
+.rarity-collectors {
+  box-shadow: 0 0 20px rgba(255,100,50,0.5), 0 0 40px rgba(100,50,255,0.3);
+}
+.rarity-collectors::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255,0,100,0.1) 0px,
+    rgba(255,100,0,0.1) 4px,
+    rgba(255,200,0,0.1) 8px,
+    rgba(0,200,100,0.1) 12px,
+    rgba(0,100,255,0.1) 16px,
+    rgba(200,0,255,0.1) 20px
+  );
+  background-size: 200% 200%;
+  animation: rarity-collectors 4s linear infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+
+/* Quarter Century (160-179): gold foil + rotating shimmer */
+@keyframes rarity-qc-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes rarity-qc-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(255,215,0,0.6), 0 0 60px rgba(255,165,0,0.4), inset 0 0 20px rgba(255,215,0,0.1); }
+  50% { box-shadow: 0 0 50px rgba(255,215,0,0.9), 0 0 100px rgba(255,165,0,0.6), inset 0 0 30px rgba(255,215,0,0.2); }
+}
+.rarity-qc {
+  animation: rarity-qc-glow 1.5s ease-in-out infinite;
+}
+.rarity-qc::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    rgba(255,215,0,0.5),
+    rgba(255,165,0,0.3),
+    rgba(255,255,200,0.6),
+    rgba(184,134,11,0.4),
+    rgba(255,215,0,0.5)
+  );
+  animation: rarity-qc-rotate 3s linear infinite;
+  pointer-events: none;
+  z-index: 4;
+  mix-blend-mode: screen;
+}
+
+/* Ultimate Rare (180-194): embossed gold edge relief */
+@keyframes rarity-ultimate-pulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(255,215,0,0.7), 0 0 80px rgba(255,100,0,0.5), 0 0 120px rgba(255,0,50,0.3), inset 0 2px 4px rgba(255,215,0,0.3); }
+  50% { box-shadow: 0 0 60px rgba(255,215,0,1), 0 0 120px rgba(255,100,0,0.8), 0 0 180px rgba(255,0,50,0.5), inset 0 2px 6px rgba(255,215,0,0.5); }
+}
+@keyframes rarity-ultimate-shimmer {
+  0% { background-position: -400% 0; }
+  100% { background-position: 400% 0; }
+}
+.rarity-ultimate {
+  animation: rarity-ultimate-pulse 1.2s ease-in-out infinite;
+}
+.rarity-ultimate::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,215,0,0.1) 20%,
+    rgba(255,255,200,0.6) 35%,
+    rgba(255,215,0,0.4) 50%,
+    rgba(255,255,200,0.6) 65%,
+    rgba(255,215,0,0.1) 80%,
+    transparent 100%
+  );
+  background-size: 400% 100%;
+  animation: rarity-ultimate-shimmer 1.5s linear infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+
+/* Platinum Rare (195-209): silver-white intense glow */
+@keyframes rarity-platinum-glow {
+  0%, 100% { box-shadow: 0 0 50px rgba(255,255,255,0.8), 0 0 100px rgba(200,210,255,0.6), 0 0 150px rgba(150,180,255,0.4); }
+  50% { box-shadow: 0 0 80px rgba(255,255,255,1), 0 0 160px rgba(200,210,255,0.9), 0 0 240px rgba(150,180,255,0.7); }
+}
+@keyframes rarity-platinum-sweep {
+  0% { transform: translateX(-200%) rotate(-30deg); }
+  100% { transform: translateX(300%) rotate(-30deg); }
+}
+.rarity-platinum {
+  animation: rarity-platinum-glow 1s ease-in-out infinite;
+}
+.rarity-platinum::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 60%;
+  height: 300%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  animation: rarity-platinum-sweep 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: overlay;
+  overflow: hidden;
+}
+.rarity-platinum::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(200,210,255,0.2) 0%,
+    rgba(255,255,255,0.4) 30%,
+    rgba(200,210,255,0.2) 60%,
+    rgba(255,255,255,0.4) 90%
+  );
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: overlay;
+}
+
+/* Extra exotic tiers for indices spread across 0-209 */
+@keyframes rarity-void-pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(100,0,200,0.8), 0 0 60px rgba(50,0,150,0.6); opacity: 0.85; }
+  50% { box-shadow: 0 0 60px rgba(150,0,255,1), 0 0 120px rgba(100,0,200,0.8); opacity: 1; }
+}
+.rarity-void {
+  animation: rarity-void-pulse 2s ease-in-out infinite;
+}
+.rarity-void::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 50%, rgba(150,0,255,0.3) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes rarity-inferno {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(60deg); }
+}
+.rarity-inferno {
+  box-shadow: 0 0 40px rgba(255,50,0,0.7), 0 0 80px rgba(255,150,0,0.5);
+  animation: rarity-inferno 1s ease-in-out infinite alternate;
+}
+.rarity-inferno::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to top, rgba(255,50,0,0.4) 0%, rgba(255,200,0,0.2) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+  animation: rarity-inferno 1s ease-in-out infinite alternate;
+}
+
+/* ===== ANIMATED WALLPAPERS ===== */
+@keyframes wallpaper-void-swirl {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.wallpaper-shadow-void {
+  background: linear-gradient(270deg, #0a0010, #1a0030, #0d0020, #05000f, #180028);
+  background-size: 400% 400%;
+  animation: wallpaper-void-swirl 15s ease infinite;
+}
+
+@keyframes wallpaper-crimson-burn {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+.wallpaper-crimson-inferno {
+  background: linear-gradient(135deg, #1a0000, #3d0000, #1a0005, #2d0010, #0d0000);
+  background-size: 400% 400%;
+  animation: wallpaper-crimson-burn 12s ease infinite;
+}
+
+@keyframes wallpaper-ruins-drift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+.wallpaper-ancient-ruins {
+  background: linear-gradient(135deg, #0a0a08, #1a1a10, #0f0f08, #1a1500, #0a0800);
+  background-size: 300% 300%;
+  animation: wallpaper-ruins-drift 20s linear infinite;
+}
+
+@keyframes wallpaper-cyber-pulse {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.wallpaper-cyber-grid {
+  background: 
+    linear-gradient(rgba(0,40,80,0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,40,80,0.8) 1px, transparent 1px),
+    linear-gradient(270deg, #000a1a, #001428, #000a1a, #000510);
+  background-size: 40px 40px, 40px 40px, 400% 400%;
+  animation: wallpaper-cyber-pulse 10s ease infinite;
+}
+
+@keyframes wallpaper-dragon-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.wallpaper-dragon-lair {
+  background: linear-gradient(270deg, #000d00, #001a00, #050d00, #0a1500, #000800);
+  background-size: 400% 400%;
+  animation: wallpaper-dragon-shift 18s ease infinite;
+}
+
+@keyframes wallpaper-stars-twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.wallpaper-celestial {
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(50,50,120,0.4) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 70%, rgba(30,30,80,0.4) 0%, transparent 40%),
+    #00000f;
+  animation: wallpaper-stars-twinkle 4s ease-in-out infinite;
+}
+
+/* ===== CARD FRAME TYPES ===== */
+.card-frame-normal {
+  background: linear-gradient(135deg, #d4a843 0%, #c9953a 40%, #b8832b 100%);
+}
+.card-frame-effect {
+  background: linear-gradient(135deg, #d4762a 0%, #c96020 40%, #b85015 100%);
+}
+.card-frame-spell {
+  background: linear-gradient(135deg, #1d7a5a 0%, #156648 40%, #0e5038 100%);
+}
+.card-frame-trap {
+  background: linear-gradient(135deg, #8b3a8b 0%, #7a2d7a 40%, #651f65 100%);
+}
+.card-frame-fusion {
+  background: linear-gradient(135deg, #8b5ca8 0%, #7a4a9c 40%, #653888 100%);
+}
+.card-frame-synchro {
+  background: linear-gradient(135deg, #c8c8c8 0%, #b0b0b0 40%, #989898 100%);
+}
+.card-frame-xyz {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 40%, #000000 100%);
+}
+.card-frame-link {
+  background: linear-gradient(135deg, #1a3a8b 0%, #142e7a 40%, #0e2465 100%);
+}
+.card-frame-ritual {
+  background: linear-gradient(135deg, #1a4a8b 0%, #143d7a 40%, #0e3065 100%);
+}
+
+/* ===== DUEL ZONE STYLES ===== */
+.monster-zone {
+  background: radial-gradient(ellipse, rgba(100,50,0,0.3) 0%, transparent 70%);
+  border: 1px solid rgba(255,150,50,0.3);
+  transition: all 0.2s;
+}
+.monster-zone:hover, .monster-zone.highlight {
+  background: radial-gradient(ellipse, rgba(255,150,0,0.4) 0%, transparent 70%);
+  border-color: rgba(255,150,0,0.8);
+  box-shadow: 0 0 15px rgba(255,150,0,0.5);
+}
+.spell-zone {
+  background: radial-gradient(ellipse, rgba(0,80,50,0.3) 0%, transparent 70%);
+  border: 1px solid rgba(50,200,100,0.3);
+  transition: all 0.2s;
+}
+.spell-zone:hover, .spell-zone.highlight {
+  background: radial-gradient(ellipse, rgba(0,180,100,0.4) 0%, transparent 70%);
+  border-color: rgba(50,200,100,0.8);
+  box-shadow: 0 0 15px rgba(50,200,100,0.5);
+}
+.graveyard-zone {
+  background: radial-gradient(ellipse, rgba(150,0,0,0.4) 0%, transparent 70%);
+  border: 1px solid rgba(200,50,50,0.5);
+}
+.extra-deck-zone {
+  background: radial-gradient(ellipse, rgba(0,50,150,0.4) 0%, transparent 70%);
+  border: 1px solid rgba(50,100,200,0.5);
+}
+
+/* ===== GLOBAL GLOW UTILITIES ===== */
+.glow-gold {
+  text-shadow: 0 0 10px rgba(255,215,0,0.8), 0 0 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.3);
+}
+.glow-crimson {
+  text-shadow: 0 0 10px rgba(220,20,60,0.8), 0 0 20px rgba(220,20,60,0.5);
+}
+.glow-blue {
+  text-shadow: 0 0 10px rgba(100,150,255,0.8), 0 0 20px rgba(100,150,255,0.5);
+}
+.border-glow-gold {
+  box-shadow: 0 0 10px rgba(255,215,0,0.4), 0 0 20px rgba(255,215,0,0.2);
+}
+.border-glow-crimson {
+  box-shadow: 0 0 10px rgba(220,20,60,0.5), 0 0 20px rgba(220,20,60,0.3);
+}
+
+/* ===== PARTICLES ===== */
+@keyframes particle-float {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.8; }
+  25% { transform: translateY(-30px) translateX(15px) scale(1.1); }
+  50% { transform: translateY(-60px) translateX(-10px) scale(0.9); opacity: 0.6; }
+  75% { transform: translateY(-40px) translateX(20px) scale(1.05); }
+  100% { transform: translateY(-80px) translateX(5px) scale(0.8); opacity: 0; }
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: particle-float 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ===== CARD 3D TILT ===== */
+.card-3d-container {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.1s ease;
+}
+
+/* ===== LP BAR ===== */
+@keyframes lp-damage-flash {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(255,0,0,0.4); }
+}
+.lp-damage-animation {
+  animation: lp-damage-flash 0.3s ease-in-out 3;
+}
+
+/* ===== PACK OPENING ===== */
+@keyframes card-reveal-flip {
+  0% { transform: rotateY(180deg) scale(0.9); opacity: 0; }
+  50% { transform: rotateY(90deg) scale(1); }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+.card-reveal-animation {
+  animation: card-reveal-flip 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  backface-visibility: hidden;
+}
+
+@keyframes rarity-burst {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+.rarity-burst {
+  animation: rarity-burst 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ===== PHASE INDICATOR ===== */
+.phase-active {
+  background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,165,0,0.2));
+  border: 1px solid rgba(255,215,0,0.6);
+  box-shadow: 0 0 10px rgba(255,215,0,0.4);
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,215,0,0.5); }
+
+/* ===== LOADING SKELETON ===== */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 50%, rgba(255,215,0,0.1) 100%);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+/* ===== VICTORY/DEFEAT ===== */
+@keyframes victory-pulse {
+  0%, 100% { transform: scale(1); text-shadow: 0 0 20px gold, 0 0 40px gold; }
+  50% { transform: scale(1.05); text-shadow: 0 0 40px gold, 0 0 80px gold, 0 0 120px rgba(255,215,0,0.5); }
+}
+.victory-text {
+  animation: victory-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes xp-fill {
+  from { width: 0%; }
+  to { width: var(--xp-target); }
+}
+.xp-bar-fill {
+  animation: xp-fill 1.5s ease-out forwards;
+}
+
+/* ===== SIDE NAV TRANSITIONS ===== */
+.nav-item-active {
+  background: linear-gradient(90deg, rgba(255,215,0,0.18) 0%, rgba(255,215,0,0.06) 60%, transparent 100%);
+  border-left: 3px solid transparent;
+  border-image: linear-gradient(to bottom, rgba(255,165,0,0.5), rgba(255,215,0,1), rgba(255,165,0,0.5)) 1;
+  box-shadow: inset 4px 0 18px rgba(255,215,0,0.12), inset 0 0 24px rgba(255,100,0,0.06);
+}
+
+/* ===== SCREEN ENTER ANIMATION ===== */
+@keyframes screen-enter {
+  0%  { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.screen-enter {
+  animation: screen-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ===== RANK BADGES ===== */
+.rank-gold { background: linear-gradient(135deg, #ffd700, #b8860b); }
+.rank-silver { background: linear-gradient(135deg, #c0c0c0, #808080); }
+.rank-bronze { background: linear-gradient(135deg, #cd7f32, #8b4513); }
+
+/* ===== CARD BACK ANIMATION ===== */
+@keyframes card-back-shimmer {
+  0% { background-position: -200% -200%; }
+  100% { background-position: 200% 200%; }
+}
+.card-back-animated {
+  background: linear-gradient(135deg, 
+    #1a0028 0%, 
+    #2d0050 25%, 
+    #1a0028 50%, 
+    #3d006a 75%, 
+    #1a0028 100%
+  );
+  background-size: 300% 300%;
+  animation: card-back-shimmer 3s linear infinite;
+}
+
+/* ===== ENERGY EFFECT ===== */
+@keyframes energy-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes energy-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* ===== SUMMON ANIMATION ===== */
+@keyframes summon-appear {
+  0% { transform: scale(0) rotate(-10deg); opacity: 0; filter: brightness(3); }
+  50% { transform: scale(1.1) rotate(3deg); opacity: 0.8; filter: brightness(2); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
+}
+.summon-animation {
+  animation: summon-appear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ===== BUTTON EFFECTS ===== */
+.btn-game {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+.btn-game::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.4s;
+}
+.btn-game:hover::before {
+  left: 100%;
+}
+
+/* ===== LEVEL UP ANIMATION ===== */
+@keyframes level-up-pop {
+  0% { transform: translateY(20px) scale(0.8); opacity: 0; }
+  50% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.level-up-animation {
+  animation: level-up-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Ensure overflow hidden on cards with ::before for animations */
+.card-display-wrapper {
+  position: relative;
+  overflow: hidden;
+}
